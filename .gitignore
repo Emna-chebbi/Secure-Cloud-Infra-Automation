@@ -26,9 +26,3 @@ Thumbs.db
 .envrc
 .env
 *.env
-
-# Terraform
-.terraform/
-*.tfstate
-*.tfstate.*
-terraform.tfvars
