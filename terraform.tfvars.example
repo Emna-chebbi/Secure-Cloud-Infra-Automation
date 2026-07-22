@@ -1,5 +1,5 @@
 project_name   = "secure-cloud-infra"
-location       = "francecentral"
+location       = "swedencentral"
 vm_size        = "Standard_B1s"
 admin_username = "azureadmin"
 my_ip          = "YOUR_PUBLIC_IP/32"
