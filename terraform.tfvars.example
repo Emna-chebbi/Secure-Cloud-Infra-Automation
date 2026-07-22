@@ -1,0 +1,6 @@
+project_name   = "secure-cloud-infra"
+location       = "francecentral"
+vm_size        = "Standard_B1s"
+admin_username = "azureadmin"
+my_ip          = "YOUR_PUBLIC_IP/32"
+environment    = "portfolio-demo"
