@@ -1,0 +1,87 @@
+---
+- name: Install prerequisites
+  apt:
+    name:
+      - curl
+      - gnupg
+      - ca-certificates
+    state: present
+
+- name: Add PostgreSQL GPG key
+  get_url:
+    url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+    dest: /etc/apt/keyrings/postgresql.asc
+    mode: '0644'
+
+- name: Add PostgreSQL apt repository
+  apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/postgresql.asc] http://apt.postgresql.org/pub/repos/apt {{ ansible_distribution_release }}-pgdg main"
+    state: present
+    filename: pgdg
+
+- name: Install PostgreSQL
+  apt:
+    name:
+      - "postgresql-{{ postgres_version }}"
+      - python3-psycopg2
+    state: present
+    update_cache: yes
+
+- name: Ensure PostgreSQL is enabled and running
+  systemd:
+    name: postgresql
+    enabled: yes
+    state: started
+
+- name: Set listen_addresses
+  lineinfile:
+    path: "/etc/postgresql/{{ postgres_version }}/main/postgresql.conf"
+    regexp: '^#?listen_addresses\s*='
+    line: "listen_addresses = '{{ postgres_listen_addresses }}'"
+  notify: restart postgresql
+
+- name: Allow web server to connect via pg_hba.conf
+  lineinfile:
+    path: "/etc/postgresql/{{ postgres_version }}/main/pg_hba.conf"
+    line: "host    {{ postgres_db }}    {{ postgres_user }}    {{ hostvars['web-server']['ansible_host'] }}/32    scram-sha-256"
+    insertafter: EOF
+  notify: restart postgresql
+
+- name: Create application database
+  become_user: postgres
+  postgresql_db:
+    name: "{{ postgres_db }}"
+    state: present
+
+- name: Create application database user
+  become_user: postgres
+  postgresql_user:
+    db: "{{ postgres_db }}"
+    name: "{{ postgres_user }}"
+    password: "{{ vault_postgres_password }}"
+    priv: ALL
+    state: present
+
+- name: Create backup directory
+  file:
+    path: "{{ postgres_backup_dir }}"
+    state: directory
+    owner: postgres
+    group: postgres
+    mode: '0750'
+
+- name: Deploy backup script
+  template:
+    src: backup.sh.j2
+    dest: /usr/local/bin/pg_backup.sh
+    owner: postgres
+    group: postgres
+    mode: '0750'
+
+- name: Schedule daily backup via cron
+  cron:
+    name: "PostgreSQL daily backup"
+    user: postgres
+    minute: "0"
+    hour: "2"
+    job: "/usr/local/bin/pg_backup.sh >> /var/log/pg_backup.log 2>&1"

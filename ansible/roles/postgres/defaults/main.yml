@@ -1,0 +1,7 @@
+---
+postgres_version: "16"
+postgres_db: appdb
+postgres_user: appuser
+postgres_listen_addresses: "*"
+postgres_backup_dir: /var/backups/postgresql
+postgres_backup_retention_days: 7

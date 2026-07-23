@@ -1,0 +1,20 @@
+---
+- name: Harden and configure all servers
+  hosts: all
+  become: true
+  roles:
+    - security
+
+- name: Configure web server
+  hosts: web
+  become: true
+  roles:
+    - docker
+    - nginx
+
+- name: Configure database server
+  hosts: db
+  become: true
+  roles:
+    - docker
+    - postgres

@@ -1,0 +1,4 @@
+---
+allowed_tcp_ports:
+  - 22
+  - 5432

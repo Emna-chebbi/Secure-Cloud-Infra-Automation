@@ -1,0 +1,9 @@
+---
+ssh_port: 22
+disable_root_login: true
+disable_password_auth: true
+allowed_tcp_ports:
+  - 22
+  - 80
+  - 443
+fail2ban_enabled: true
