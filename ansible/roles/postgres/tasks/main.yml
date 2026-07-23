@@ -56,14 +56,20 @@
     state: present
 
 - name: Create application database user
-  become: true
   become_user: postgres
-  become_method: sudo
-  postgresql_user:
-    db: "{{ postgres_db }}"
+  community.postgresql.postgresql_user:
     name: "{{ postgres_user }}"
     password: "{{ vault_postgres_password }}"
-    priv: ALL
+    role_attr_flags: "LOGIN"
+    state: present
+
+- name: Grant database privileges to application user
+  become_user: postgres
+  community.postgresql.postgresql_privs:
+    database: "{{ postgres_db }}"
+    roles: "{{ postgres_user }}"
+    type: database
+    privs: ALL
     state: present
 
 - name: Create backup directory
