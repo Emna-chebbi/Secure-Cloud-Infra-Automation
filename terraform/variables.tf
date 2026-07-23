@@ -34,11 +34,6 @@ variable "subnet_address_prefix" {
   default     = "10.0.1.0/24"
 }
 
-variable "my_ip" {
-  description = "Your home/public IP in CIDR form, for restricting SSH access."
-  type        = string
-}
-
 variable "environment" {
   description = "Environment tag"
   type        = string

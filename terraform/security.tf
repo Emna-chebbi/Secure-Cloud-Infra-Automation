@@ -11,7 +11,7 @@ resource "azurerm_network_security_group" "web" {
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "22"
-    source_address_prefix      = var.my_ip
+    source_address_prefix      = "${chomp(data.http.my_ip.response_body)}/32"
     destination_address_prefix = "*"
   }
 
@@ -53,7 +53,7 @@ resource "azurerm_network_security_group" "db" {
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "22"
-    source_address_prefix      = var.my_ip
+    source_address_prefix      = "${chomp(data.http.my_ip.response_body)}/32"
     destination_address_prefix = "*"
   }
 
@@ -71,11 +71,11 @@ resource "azurerm_network_security_group" "db" {
 }
 
 resource "azurerm_network_interface_security_group_association" "web" {
-  network_interface_id     = azurerm_network_interface.web.id
+  network_interface_id      = azurerm_network_interface.web.id
   network_security_group_id = azurerm_network_security_group.web.id
 }
 
 resource "azurerm_network_interface_security_group_association" "db" {
-  network_interface_id     = azurerm_network_interface.db.id
+  network_interface_id      = azurerm_network_interface.db.id
   network_security_group_id = azurerm_network_security_group.db.id
 }

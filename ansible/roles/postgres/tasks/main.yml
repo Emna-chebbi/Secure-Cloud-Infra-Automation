@@ -48,13 +48,17 @@
   notify: restart postgresql
 
 - name: Create application database
+  become: true
   become_user: postgres
+  become_method: sudo
   postgresql_db:
     name: "{{ postgres_db }}"
     state: present
 
 - name: Create application database user
+  become: true
   become_user: postgres
+  become_method: sudo
   postgresql_user:
     db: "{{ postgres_db }}"
     name: "{{ postgres_user }}"
