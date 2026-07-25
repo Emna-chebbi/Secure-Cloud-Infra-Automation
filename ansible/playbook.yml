@@ -11,6 +11,7 @@
   roles:
     - docker
     - nginx
+    - app
 
 - name: Configure database server
   hosts: db

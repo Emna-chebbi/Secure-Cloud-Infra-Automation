@@ -1,0 +1,29 @@
+---
+- name: Ensure app directory exists on remote host
+  file:
+    path: /opt/app
+    state: directory
+    owner: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: Copy application source to remote host
+  copy:
+    src: "{{ item }}"
+    dest: "/opt/app/{{ item | basename }}"
+    owner: "{{ ansible_user }}"
+    mode: '0644'
+  loop:
+    - "{{ playbook_dir }}/../docker/docker-compose.yml"
+
+- name: Copy app build context
+  copy:
+    src: "{{ playbook_dir }}/../docker/app/"
+    dest: /opt/app/app/
+    owner: "{{ ansible_user }}"
+    mode: '0644'
+
+- name: Build and start the application container
+  community.docker.docker_compose_v2:
+    project_src: /opt/app
+    state: present
+    build: always
