@@ -21,6 +21,8 @@ resource "azurerm_linux_virtual_machine" "web" {
   size                = var.vm_size
   admin_username      = var.admin_username
 
+  vm_agent_platform_updates_enabled = true
+
   network_interface_ids = [
     azurerm_network_interface.web.id,
   ]
@@ -53,6 +55,8 @@ resource "azurerm_linux_virtual_machine" "db" {
   resource_group_name = azurerm_resource_group.main.name
   size                = var.vm_size
   admin_username      = var.admin_username
+
+  vm_agent_platform_updates_enabled = true
 
   network_interface_ids = [
     azurerm_network_interface.db.id,
