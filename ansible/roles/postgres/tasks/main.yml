@@ -1,6 +1,6 @@
 ---
 - name: Install prerequisites
-  apt:
+  ansible.builtin.apt:
     name:
       - curl
       - gnupg
@@ -8,50 +8,50 @@
     state: present
 
 - name: Add PostgreSQL GPG key
-  get_url:
+  ansible.builtin.get_url:
     url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
     dest: /etc/apt/keyrings/postgresql.asc
     mode: '0644'
 
 - name: Add PostgreSQL apt repository
-  apt_repository:
+  ansible.builtin.apt_repository:
     repo: "deb [signed-by=/etc/apt/keyrings/postgresql.asc] http://apt.postgresql.org/pub/repos/apt {{ ansible_distribution_release }}-pgdg main"
     state: present
     filename: pgdg
 
 - name: Install PostgreSQL
-  apt:
+  ansible.builtin.apt:
     name:
       - "postgresql-{{ postgres_version }}"
       - python3-psycopg2
     state: present
-    update_cache: yes
+    update_cache: true
 
 - name: Ensure PostgreSQL is enabled and running
-  systemd:
+  ansible.builtin.systemd:
     name: postgresql
-    enabled: yes
+    enabled: true
     state: started
 
 - name: Set listen_addresses
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "/etc/postgresql/{{ postgres_version }}/main/postgresql.conf"
     regexp: '^#?listen_addresses\s*='
     line: "listen_addresses = '{{ postgres_listen_addresses }}'"
-  notify: restart postgresql
+  notify: Restart postgresql
 
 - name: Allow web server to connect via pg_hba.conf
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "/etc/postgresql/{{ postgres_version }}/main/pg_hba.conf"
     line: "host    {{ postgres_db }}    {{ postgres_user }}    {{ hostvars['web-server']['ansible_host'] }}/32    scram-sha-256"
     insertafter: EOF
-  notify: restart postgresql
+  notify: Restart postgresql
 
 - name: Create application database
   become: true
   become_user: postgres
   become_method: sudo
-  postgresql_db:
+  community.postgresql.postgresql_db:
     name: "{{ postgres_db }}"
     state: present
 
@@ -73,7 +73,7 @@
     state: present
 
 - name: Create backup directory
-  file:
+  ansible.builtin.file:
     path: "{{ postgres_backup_dir }}"
     state: directory
     owner: postgres
@@ -81,7 +81,7 @@
     mode: '0750'
 
 - name: Deploy backup script
-  template:
+  ansible.builtin.template:
     src: backup.sh.j2
     dest: /usr/local/bin/pg_backup.sh
     owner: postgres
@@ -89,9 +89,9 @@
     mode: '0750'
 
 - name: Schedule daily backup via cron
-  cron:
+  ansible.builtin.cron:
     name: "PostgreSQL daily backup"
-    user: postgres
+    ansible.builtin.user: postgres
     minute: "0"
     hour: "2"
     job: "/usr/local/bin/pg_backup.sh >> /var/log/pg_backup.log 2>&1"

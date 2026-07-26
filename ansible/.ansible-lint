@@ -1,0 +1,7 @@
+profile: min
+
+skip_list:
+  - yaml[line-length]  
+
+exclude_paths:
+  - .cache/

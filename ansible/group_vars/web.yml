@@ -1,5 +1,5 @@
 ---
-allowed_tcp_ports:
+security_allowed_tcp_ports:
   - 22
   - 80
   - 443

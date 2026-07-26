@@ -1,9 +1,9 @@
 # Managed by Ansible - do not edit manually
-Port {{ ssh_port }}
+Port {{ security_ssh_port }}
 Protocol 2
 
-PermitRootLogin {{ 'no' if disable_root_login else 'yes' }}
-PasswordAuthentication {{ 'no' if disable_password_auth else 'yes' }}
+PermitRootLogin {{ 'no' if security_disable_root_login else 'yes' }}
+PasswordAuthentication {{ 'no' if security_disable_password_auth else 'yes' }}
 PubkeyAuthentication yes
 ChallengeResponseAuthentication no
 UsePAM yes
