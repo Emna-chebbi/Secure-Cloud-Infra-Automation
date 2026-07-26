@@ -35,3 +35,4 @@ Thumbs.db
 .env
 *.env
 .vault_pass
+checkov-report.xml

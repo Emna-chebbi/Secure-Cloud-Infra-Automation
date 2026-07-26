@@ -13,6 +13,7 @@ resource "azurerm_network_security_group" "web" {
     destination_port_range     = "22"
     source_address_prefix      = "${chomp(data.http.my_ip.response_body)}/32"
     destination_address_prefix = "*"
+    description                = "SSH access restricted to administrator's current public IP only"
   }
 
   security_rule {
@@ -25,6 +26,7 @@ resource "azurerm_network_security_group" "web" {
     destination_port_range     = "80"
     source_address_prefix      = "*"
     destination_address_prefix = "*"
+    description                = "Allow HTTP traffic from any source"
   }
 
   security_rule {
@@ -37,6 +39,7 @@ resource "azurerm_network_security_group" "web" {
     destination_port_range     = "443"
     source_address_prefix      = "*"
     destination_address_prefix = "*"
+    description                = "Allow HTTPS traffic from any source"
   }
 }
 
@@ -55,6 +58,7 @@ resource "azurerm_network_security_group" "db" {
     destination_port_range     = "22"
     source_address_prefix      = "${chomp(data.http.my_ip.response_body)}/32"
     destination_address_prefix = "*"
+    description                = "SSH access restricted to administrator's current public IP only"
   }
 
   security_rule {
@@ -67,6 +71,7 @@ resource "azurerm_network_security_group" "db" {
     destination_port_range     = "5432"
     source_address_prefix      = var.subnet_address_prefix
     destination_address_prefix = "*"
+    description                = "Allow PostgreSQL traffic only from the web server subnet"
   }
 }
 

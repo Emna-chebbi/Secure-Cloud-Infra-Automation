@@ -3,11 +3,6 @@ output "web_public_ip" {
   value       = azurerm_public_ip.web.ip_address
 }
 
-output "db_public_ip" {
-  description = "Public IP of the database server"
-  value       = azurerm_public_ip.db.ip_address
-}
-
 output "web_private_ip" {
   description = "Private IP of the web server"
   value       = azurerm_network_interface.web.private_ip_address
