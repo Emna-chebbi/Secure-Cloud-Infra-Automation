@@ -1,0 +1,71 @@
+name: Infrastructure Deploy
+
+on:
+  workflow_run:
+    workflows: ["Infrastructure CI"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch: {}
+
+concurrency:
+  group: azure-infra-state
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Terraform Apply + Ansible Configure
+    runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    environment: production
+    env:
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.15.8"
+
+      - name: Terraform Init
+        working-directory: terraform
+        run: terraform init
+
+      - name: Terraform Apply
+        working-directory: terraform
+        run: terraform apply -auto-approve
+
+      - name: Set up SSH key for Ansible
+        run: |
+          mkdir -p terraform/generated
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > terraform/generated/ssh_key.pem
+          chmod 600 terraform/generated/ssh_key.pem
+
+      - name: Generate Ansible inventory
+        working-directory: scripts
+        run: |
+          chmod +x generate-inventory.sh
+          ./generate-inventory.sh
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Ansible and collections
+        working-directory: ansible
+        run: |
+          pip install ansible
+          ansible-galaxy collection install -r requirements.yml
+
+      - name: Run Ansible playbook
+        working-directory: ansible
+        run: |
+          echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > .vault_pass
+          chmod 600 .vault_pass
+          ansible-playbook playbook.yml --vault-password-file .vault_pass
