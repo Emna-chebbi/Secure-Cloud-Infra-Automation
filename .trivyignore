@@ -1,0 +1,7 @@
+# Public web application requires HTTP/HTTPS exposure.
+# SSH access remains restricted to administrator IP only.
+AZU-0047
+# Web tier requires public exposure for application accessibility.
+# Database VM remains private with no public IP.
+AZU-0076
+
