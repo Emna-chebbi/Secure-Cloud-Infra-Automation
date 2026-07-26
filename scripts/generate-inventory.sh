@@ -9,7 +9,7 @@ INVENTORY_FILE="../ansible/inventory.ini"
 echo "Reading Terraform outputs..."
 
 WEB_IP=$(terraform -chdir="${TERRAFORM_DIR}" output -raw web_public_ip)
-DB_IP=$(terraform -chdir="${TERRAFORM_DIR}" output -raw db_public_ip)
+DB_IP=$(terraform -chdir="${TERRAFORM_DIR}" output -raw db_private_ip)
 ADMIN_USER=$(terraform -chdir="${TERRAFORM_DIR}" output -raw admin_username)
 
 if [[ -z "${WEB_IP}" || -z "${DB_IP}" ]]; then
