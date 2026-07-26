@@ -91,7 +91,7 @@
 - name: Schedule daily backup via cron
   ansible.builtin.cron:
     name: "PostgreSQL daily backup"
-    ansible.builtin.user: postgres
+    user: postgres
     minute: "0"
     hour: "2"
     job: "/usr/local/bin/pg_backup.sh >> /var/log/pg_backup.log 2>&1"

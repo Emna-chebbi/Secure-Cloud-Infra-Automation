@@ -73,6 +73,19 @@ resource "azurerm_network_security_group" "db" {
     destination_address_prefix = "*"
     description                = "Allow PostgreSQL traffic only from the web server subnet"
   }
+
+  security_rule {
+    name                       = "AllowSSHFromWebServer"
+    priority                   = 105
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "22"
+    source_address_prefix      = var.subnet_address_prefix
+    destination_address_prefix = "*"
+    description                = "Allow SSH jump from web server (bastion) to db server"
+  }
 }
 
 resource "azurerm_network_interface_security_group_association" "web" {
