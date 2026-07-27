@@ -53,3 +53,17 @@
     enabled: true
     state: started
   when: security_fail2ban_enabled
+
+- name: Check if a reboot is required
+  ansible.builtin.stat:
+    path: /var/run/reboot-required
+  register: reboot_required_file
+
+- name: Reboot if required, then wait for host to come back
+  ansible.builtin.reboot:
+    reboot_timeout: 300
+    connect_timeout: 20
+    pre_reboot_delay: 5
+    post_reboot_delay: 30
+    test_command: uptime
+  when: reboot_required_file.stat.exists

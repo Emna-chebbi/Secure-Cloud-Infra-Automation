@@ -23,7 +23,7 @@ cat > "${INVENTORY_FILE}" << EOI
 web-server ansible_host=${WEB_IP}
 
 [db]
-db-server ansible_host=${DB_IP} ansible_ssh_common_args='-o ProxyCommand="ssh -i ${SSH_KEY} -W %h:%p -q ${ADMIN_USER}@${WEB_IP}"'
+db-server ansible_host=${DB_IP} ansible_ssh_common_args='-o ConnectTimeout=15 -o ServerAliveInterval=15 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ProxyCommand="ssh -i ${SSH_KEY} -o ConnectTimeout=15 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -W %h:%p -q ${ADMIN_USER}@${WEB_IP}"'
 
 [all:vars]
 ansible_user=${ADMIN_USER}
