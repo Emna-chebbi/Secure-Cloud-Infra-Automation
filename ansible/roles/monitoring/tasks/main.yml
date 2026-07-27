@@ -1,0 +1,51 @@
+---
+- name: Create monitoring directory structure
+  ansible.builtin.file:
+    path: "{{ monitoring_dir }}/{{ item }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    mode: '0755'
+  loop:
+    - ""
+    - "provisioning/datasources"
+    - "provisioning/dashboards"
+
+- name: Deploy Prometheus config
+  ansible.builtin.template:
+    src: prometheus.yml.j2
+    dest: "{{ monitoring_dir }}/prometheus.yml"
+    owner: "{{ ansible_user }}"
+    mode: '0644'
+
+- name: Deploy Grafana datasource provisioning
+  ansible.builtin.template:
+    src: provisioning/datasources/prometheus.yml.j2
+    dest: "{{ monitoring_dir }}/provisioning/datasources/prometheus.yml"
+    owner: "{{ ansible_user }}"
+    mode: '0644'
+
+- name: Deploy Grafana dashboard provider config
+  ansible.builtin.template:
+    src: provisioning/dashboards/dashboard-provider.yml.j2
+    dest: "{{ monitoring_dir }}/provisioning/dashboards/dashboard-provider.yml"
+    owner: "{{ ansible_user }}"
+    mode: '0644'
+
+- name: Copy Node Exporter community dashboard
+  ansible.builtin.copy:
+    src: node-exporter-dashboard.json
+    dest: "{{ monitoring_dir }}/provisioning/dashboards/node-exporter-dashboard.json"
+    owner: "{{ ansible_user }}"
+    mode: '0644'
+
+- name: Deploy monitoring docker-compose file
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ monitoring_dir }}/docker-compose.yml"
+    owner: "{{ ansible_user }}"
+    mode: '0644'
+
+- name: Start Prometheus and Grafana
+  community.docker.docker_compose_v2:
+    project_src: "{{ monitoring_dir }}"
+    state: present

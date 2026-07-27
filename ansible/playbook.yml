@@ -4,6 +4,7 @@
   become: true
   roles:
     - security
+    - node_exporter
 
 - name: Configure web server
   hosts: web
@@ -12,6 +13,7 @@
     - docker
     - nginx
     - app
+    - monitoring
 
 - name: Configure database server
   hosts: db

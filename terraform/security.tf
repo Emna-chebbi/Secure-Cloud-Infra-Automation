@@ -41,6 +41,19 @@ resource "azurerm_network_security_group" "web" {
     destination_address_prefix = "*"
     description                = "Allow HTTPS traffic from any source"
   }
+
+  security_rule {
+    name                       = "AllowGrafanaFromMyIP"
+    priority                   = 130
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "3000"
+    source_address_prefix      = "${chomp(data.http.my_ip.response_body)}/32"
+    destination_address_prefix = "*"
+    description                = "Grafana dashboard restricted to administrator IP only"
+  }
 }
 
 resource "azurerm_network_security_group" "db" {
@@ -85,6 +98,19 @@ resource "azurerm_network_security_group" "db" {
     source_address_prefix      = var.subnet_address_prefix
     destination_address_prefix = "*"
     description                = "Allow SSH jump from web server (bastion) to db server"
+  }
+
+  security_rule {
+    name                       = "AllowNodeExporterFromWeb"
+    priority                   = 115
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "9100"
+    source_address_prefix      = var.subnet_address_prefix
+    destination_address_prefix = "*"
+    description                = "Allow Prometheus on web server to scrape node_exporter on db server"
   }
 }
 
